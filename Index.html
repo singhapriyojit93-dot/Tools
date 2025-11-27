@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearCut | Background Remover</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --background: #ffffff;
+            --surface: #f9fafb;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+            background-color: var(--background);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background-color: var(--surface);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .app-section {
+            padding: 80px 0;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            background-color: var(--surface);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .upload-area:hover, .upload-area.active {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.03);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .upload-area h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .upload-area p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .preview-area {
+            border-radius: var(--radius);
+            padding: 30px;
+            background-color: var(--surface);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .preview-area h3 {
+            font-size: 20px;
+            color: var(--text);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 300px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid var(--border);
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn i {
+            font-size: 18px;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--surface);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(37, 99, 235, 0.2);
+            border-left: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features {
+            padding: 80px 0;
+            background-color: var(--surface);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--background);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+        }
+
+        footer {
+            padding: 60px 0 40px;
+            background-color: var(--text);
+            color: white;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo i {
+            font-size: 28px;
+        }
+
+        .footer-about p {
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+
+        .footer-links h4 {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid #374151;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-cut"></i>
+                    <span>ClearCut</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Examples</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Remove Image Backgrounds Instantly</h1>
+            <p>Upload your image and get a clean, background-free result in seconds with our AI technology.</p>
+            <button class="btn" id="scrollToApp">
+                <i class="fas fa-magic"></i> Try It Now
+            </button>
+        </div>
+    </section>
+
+    <section class="app-section" id="appSection">
+        <div class="container">
+            <div class="app-container">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Your Image</h3>
+                    <p>Drag & drop your image here or click to browse</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <button class="btn btn-outline" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Select Image
+                    </button>
+                </div>
+                
+                <div class="preview-area">
+                    <h3>Preview</h3>
+                    <div class="image-container">
+                        <img id="previewImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Cpath d='M150 100 L250 100 L250 200 L150 200 Z' fill='%23e5e7eb'/%3E%3Ctext x='200' y='160' text-anchor='middle' font-family='Arial' font-size='16' fill='%239ca3af'%3EYour Image Here%3C/text%3E%3C/svg%3E" alt="Preview">
+                    </div>
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Processing your image...</p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn" id="removeBgBtn">
+                            <i class="fas fa-magic"></i> Remove Background
+                        </button>
+                        <button class="btn btn-outline" id="downloadBtn" disabled>
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose ClearCut</h2>
+                <p>Our AI-powered background removal delivers professional results in seconds</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Lightning Fast</h3>
+                    <p>Process images in seconds with our advanced AI technology.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Secure & Private</h3>
+                    <p>Your images are processed securely and never stored on our servers.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-star"></i>
+                    <h3>High Quality</h3>
+                    <p>Get professional results with crisp edges and perfect cutouts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">
+                        <i class="fas fa-cut"></i>
+                        <span>ClearCut</span>
+                    </div>
+                    <p>Remove backgrounds from your images instantly with our AI-powered tool. Fast, secure, and free to use.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Examples</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 ClearCut. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const previewImage = document.getElementById('previewImage');
+            const removeBgBtn = document.getElementById('removeBgBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loading = document.getElementById('loading');
+            const scrollToAppBtn = document.getElementById('scrollToApp');
+            const appSection = document.getElementById('appSection');
+            
+            // API key
+            const API_KEY = 'Yc1YPGvD1Yfj9f3WRVYggNCE';
+            let processedImageUrl = null;
+            
+            // Scroll to app section
+            scrollToAppBtn.addEventListener('click', function() {
+                appSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Upload button click event
+            uploadBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // File input change event
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        downloadBtn.disabled = true;
+                        processedImageUrl = null;
+                    };
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('active');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('active');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('active');
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        downloadBtn.disabled = true;
+                        processedImageUrl = null;
+                    };
+                    
+                    reader.readAsDataURL(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // Remove background button click event
+            removeBgBtn.addEventListener('click', function() {
+                if (!fileInput.files || !fileInput.files[0]) {
+                    alert('Please select an image first.');
+                    return;
+                }
+                
+                loading.style.display = 'flex';
+                removeBgBtn.disabled = true;
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('image_file', fileInput.files[0]);
+                
+                // Make API request to Remove.bg
+                fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': API_KEY
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to remove background');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create URL for the processed image
+                    processedImageUrl = URL.createObjectURL(blob);
+                    previewImage.src = processedImageUrl;
+                    loading.style.display = 'none';
+                    removeBgBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error removing background. Please try again.');
+                    loading.style.display = 'none';
+                    removeBgBtn.disabled = false;
+                });
+            });
+            
+            // Download button click event
+            downloadBtn.addEventListener('click', function() {
+                if (processedImageUrl) {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = processedImageUrl;
+                    downloadLink.download = 'background-removed.png';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                }
+            });
+        });
+    </script>
+</body>
+  </html>
